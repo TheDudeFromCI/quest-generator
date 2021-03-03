@@ -1,4 +1,5 @@
 from pydispatch import Dispatcher
+from GameObject import GameObject
 
 
 class QuestRequirement(Dispatcher):
@@ -6,7 +7,7 @@ class QuestRequirement(Dispatcher):
 
     Attributes:
         description (str): The description text for this quest requirement.
-        is_complete (bool): True if the quest requirement is completed. False otherwise.
+        is_complete (bool): True if the quest requirement is completed. False otherwise. Read only.
 
     Events:
         completed: Called when the quest requirement is completed.
@@ -37,7 +38,7 @@ class QuestFailureMethod(Dispatcher):
 
     Attributes:
         description (str): The description text for this quest failure method.
-        is_failed (bool): True if the quest has failed. False otherwise.
+        is_failed (bool): True if the quest has failed. False otherwise. Read only.
 
     Events:
         failed: Called when the quest has failed.
@@ -63,16 +64,17 @@ class QuestFailureMethod(Dispatcher):
         self.emit('failed')
 
 
-class Quest(Dispatcher):
+class Quest(GameObject):
     """A quest instance with a list of requirements and failure methods.
 
     Attributes:
+        id (uuid): The uuid of this quest.
         name (str): The name of this quest.
         description (str): The description text for this quest.
-        requirements (List[QuestRequirement]): A list of requirements for this quest. All must be completed to complete the quest.
-        failure_methods (List[QuestFailureMethod]): A list of failure methods for this quest. Failing any of these fails the entire quest.
-        is_complete (bool): True if the quest has been completed. False otherwise.
-        if_failed (bool): True if the quest is failed. False otherwise.
+        requirements (List[QuestRequirement]): A list of requirements for this quest. All must be completed to complete the quest. Read only.
+        failure_methods (List[QuestFailureMethod]): A list of failure methods for this quest. Failing any of these fails the entire quest. Read only.
+        is_complete (bool): True if the quest has been completed. False otherwise. Read only.
+        if_failed (bool): True if the quest is failed. False otherwise. Read only.
 
     Events:
         completed: Called when the quest is completed.
@@ -82,7 +84,7 @@ class Quest(Dispatcher):
 
     _events_ = ['completed', 'failed', 'requirement_met']
 
-    def __init__(self, name, description, requirements, failure_methods):
+    def __init__(self, name, description, requirements, failure_methods, id=None):
         """Creates a new quest instance.
 
         Args:
@@ -92,8 +94,8 @@ class Quest(Dispatcher):
             failure_methods (List[QuestFailureMethod]): A list of failure methods for this quest. Failing any of these fails the entire quest.
         """
 
-        self.name = name
-        self.description = description
+        super().__init__(name, description, id=id)
+
         self.requirements = requirements
         self.failure_methods = failure_methods
         self.is_complete = False
